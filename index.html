@@ -894,6 +894,7 @@ async function startSave(code){
     st.busy=false; draw();
   };
   draw();
+  if(r&&LS.get("rx.key","")) save();
 }
 if(window.RX_PUBLIC) startPublic(); else { route(); initData(); }
 </script>
