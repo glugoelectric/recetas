@@ -422,7 +422,7 @@ function getFactor(r){
 }
 function renderStepText(text, r, f){
   let out=esc(text||"");
-  return out.replace(/\{(i[a-z0-9]+)\}/g,(m,id)=>{
+  return out.replace(/\{([a-z][a-z0-9]*)\}/gi,(m,id)=>{
     const ing=(r.ingredients||[]).find(i=>i.id===id); if(!ing) return m;
     return `<span class="amt-tok ${Math.abs(f-1)>1e-6 && ing.scale!==false?"changed":""}">${esc(fmtIng(ing,f))}</span>`;
   });
