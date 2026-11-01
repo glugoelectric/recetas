@@ -142,7 +142,7 @@ const T = {
     factor:"Multiplicador",ingredients:"Ingredientes",steps:"Pasos",notes:"Notas",
     toTaste:"al gusto",start:"Iniciar",pause:"Pausa",resume:"Seguir",resetT:"Reiniciar",
     timeUp:"¡Tiempo!",stop:"Parar",step:"Paso",min:"min",
-    del:"Borrar",delQ:"¿Borrar esta receta?",delRowQ:"¿Quitar esta fila?",delMsg:"Esto no se puede deshacer.",cancel:"Cancelar",
+    del:"Borrar",delQ:"¿Borrar esta receta?",delRowQ:"¿Quitar esta fila?",fullRecipe:"receta completa",tokGone:"falta ingrediente",delMsg:"Esto no se puede deshacer.",cancel:"Cancelar",
     done:"Listo",editing:"Editando en",title:"Nombre de la receta",link:"Enlace de video (Instagram, TikTok, YouTube…)",
     tags:"Etiquetas (separadas por coma)",emoji:"Ícono",servings:"Rinde (opcional)",
     ingName:"Ingrediente",addIng:"+ Ingrediente",addStep:"+ Paso",addPreset:"+ Porción rápida",
@@ -166,7 +166,7 @@ const T = {
     factor:"Multiplier",ingredients:"Ingredients",steps:"Steps",notes:"Notes",
     toTaste:"to taste",start:"Start",pause:"Pause",resume:"Resume",resetT:"Reset",
     timeUp:"Time's up!",stop:"Stop",step:"Step",min:"min",
-    del:"Delete",delQ:"Delete this recipe?",delRowQ:"Remove this row?",delMsg:"This can't be undone.",cancel:"Cancel",
+    del:"Delete",delQ:"Delete this recipe?",delRowQ:"Remove this row?",fullRecipe:"full recipe",tokGone:"missing ingredient",delMsg:"This can't be undone.",cancel:"Cancel",
     done:"Done",editing:"Editing in",title:"Recipe name",link:"Video link (Instagram, TikTok, YouTube…)",
     tags:"Tags (comma separated)",emoji:"Icon",servings:"Makes (optional)",
     ingName:"Ingredient",addIng:"+ Ingredient",addStep:"+ Step",addPreset:"+ Quick portion",
@@ -420,10 +420,20 @@ function getFactor(r){
   if(!ing || !(+ing.qty>0) || !(+st.amount>0)) return 1;
   return (+st.amount)/(+ing.qty);
 }
+function smallRef(r){
+  const main=(r.ingredients||[]).find(i=>i.id===r.mainId), full=+main?.qty||0; if(!full) return null;
+  const ps=(r.presets||[]).filter(p=>+p.value>0&&+p.value<full).sort((a,b)=>a.value-b.value);
+  return ps.length?{amt:+ps[0].value,label:L(ps[0].label)||String(ps[0].value),full}:{amt:full/2,label:"½",full};
+}
+function stepMinutes(r,s,f){
+  const full=+s.timer||0; if(s.timerSmall===""||s.timerSmall==null||!full) return full;
+  const ref=smallRef(r); if(!ref) return full; const fs=ref.amt/ref.full, sm=+s.timerSmall;
+  if(f<=fs) return sm; return Math.round(sm+(full-sm)*(f-fs)/(1-fs));
+}
 function renderStepText(text, r, f){
   let out=esc(text||"");
   return out.replace(/\{([a-z][a-z0-9]*)\}/gi,(m,id)=>{
-    const ing=(r.ingredients||[]).find(i=>i.id===id); if(!ing) return m;
+    const ing=(r.ingredients||[]).find(i=>i.id===id); if(!ing) return `<span class="amt-tok" style="background:#fee2e2;color:#b91c1c">⚠ ${t("tokGone")}</span>`;
     return `<span class="amt-tok ${Math.abs(f-1)>1e-6 && ing.scale!==false?"changed":""}">${esc(fmtIng(ing,f))}</span>`;
   });
 }
@@ -474,7 +484,7 @@ function renderRecipe(r){
         <div class="step-h"><div class="step-n">${ix+1}</div><h3>${esc(L(s.title)||t("step")+" "+(ix+1))}</h3>
           <button class="ck ${c.step[ix]?"on":""}" data-sck="${ix}" aria-label="done">${c.step[ix]?"✓":""}</button></div>
         <p>${renderStepText(L(s.text),r,f)}</p>
-        ${+s.timer>0?`<div class="timer" data-timer="${ix}" data-min="${+s.timer}"><span>⏱</span><span class="clock">${fmtClock(timerLeft(r.id,ix,+s.timer))}</span>${timerBtns(r.id,ix)}</div>`:""}
+        ${+s.timer>0?(()=>{const m=stepMinutes(r,s,f);return `<div class="timer" data-timer="${ix}" data-min="${m}"><span>⏱</span><span class="clock">${fmtClock(timerLeft(r.id,ix,m))}</span>${timerBtns(r.id,ix)}${m!==+s.timer?`<span class="hint">(${t("fullRecipe")}: ${+s.timer} min)</span>`:""}</div>`})():""}
       </div>`).join("")}`:""}
     ${L(r.notes)?`<div class="sec-title">📝 ${t("notes")}</div><div class="card notes">${esc(L(r.notes))}</div>`:""}
   </div>`;
@@ -613,7 +623,7 @@ function normalize(r){
   ["title","servings","notes"].forEach(k=>{ if(typeof r[k]==="string") r[k]={es:r[k],en:""}; r[k]=r[k]||{es:"",en:""}; });
   r.tags=(r.tags||[]).map(x=>typeof x==="string"?{es:x,en:x}:x);
   r.ingredients=(r.ingredients||[]).map((i,ix)=>({id:i.id||"i"+(ix+1)+uid().slice(0,3),qty:i.qty??"",qtyMax:i.qtyMax??"",unit:i.unit in UNITS?i.unit:"",name:typeof i.name==="string"?{es:i.name,en:""}:(i.name||{es:"",en:""}),scale:i.scale!==false}));
-  r.steps=(r.steps||[]).map(s=>({title:typeof s.title==="string"?{es:s.title,en:""}:(s.title||{es:"",en:""}),text:typeof s.text==="string"?{es:s.text,en:""}:(s.text||{es:"",en:""}),timer:s.timer??""}));
+  r.steps=(r.steps||[]).map(s=>({title:typeof s.title==="string"?{es:s.title,en:""}:(s.title||{es:"",en:""}),text:typeof s.text==="string"?{es:s.text,en:""}:(s.text||{es:"",en:""}),timer:s.timer??"",timerSmall:s.timerSmall??""}));
   r.presets=(r.presets||[]).map(p=>({label:typeof p.label==="string"?{es:p.label,en:p.label}:(p.label||{es:"",en:""}),value:p.value??""}));
   if(!r.ingredients.find(i=>i.id===r.mainId)) r.mainId=r.ingredients[0]?.id||"";
   return r;
