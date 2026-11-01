@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recetas G Lugo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f1e8; --card:#fffdf9; --ink:#2b2118; --muted:#7a6a5a; --line:#e8dccb;
+  --accent:#c2410c; --accent-2:#9a3412; --accent-soft:#fde7d6; --green:#15803d; --green-soft:#dcfce7;
+  --red:#dc2626; --shadow:0 2px 10px rgba(80,50,20,.08);
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0;line-height:1.15}
+button{font:inherit;cursor:pointer;border:none}
+input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:820px;margin:0 auto;padding:0 14px calc(90px + var(--safe-b))}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:rgba(247,241,232,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:calc(10px + var(--safe-t)) 14px 10px}
+.top-in{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.top h1{font-size:22px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang{display:flex;background:#eadfce;border-radius:999px;padding:3px}
+.lang button{padding:6px 12px;border-radius:999px;background:transparent;font-weight:700;font-size:14px;color:var(--muted)}
+.lang button.on{background:var(--ink);color:#fff}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:12px;font-weight:600;background:var(--accent);color:#fff;box-shadow:var(--shadow);min-height:44px}
+.btn:active{transform:scale(.98)}
+.btn.sec{background:var(--accent-soft);color:var(--accent-2);box-shadow:none;border:1.5px solid #f6c7a5}
+.btn.ghost{background:#efe5d6;color:var(--ink);box-shadow:none;border:1.5px solid var(--line)}
+.btn.green{background:var(--green)}
+.btn.red{background:var(--red)}
+.btn.sm{white-space:nowrap;padding:6px 12px;min-height:36px;font-size:15px;border-radius:10px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.icon-btn{width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#efe5d6;border:1.5px solid var(--line);font-size:20px;color:var(--ink);flex:none}
+.fab{position:fixed;right:18px;bottom:calc(18px + var(--safe-b));z-index:15;border-radius:999px;padding:14px 22px;font-size:17px}
+/* list */
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);margin:14px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chip{padding:7px 13px;border-radius:999px;background:var(--accent-soft);color:var(--accent-2);border:1.5px solid #f6c7a5;font-weight:600;font-size:15px}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.row-wrap{position:relative;margin:10px 0;border-radius:16px;overflow:hidden;background:var(--red)}
+.row-del{position:absolute;right:0;top:0;bottom:0;width:96px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;background:var(--red)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.rcard{position:relative;padding:14px 16px;display:flex;gap:12px;align-items:center;transition:transform .2s;touch-action:pan-y;user-select:none}
+.rcard .em{font-size:30px;width:52px;height:52px;border-radius:14px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;flex:none}
+.rcard h3{font-size:19px}
+.rcard .meta{color:var(--muted);font-size:14px;margin-top:2px}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:#e0ecff;color:#1e40af;margin-right:4px}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.note{font-size:14px;color:var(--muted);margin:10px 2px}
+/* recipe view */
+.sec-title{font-family:Fraunces,serif;font-size:21px;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.video{display:flex;align-items:center;gap:12px;padding:14px 16px;margin-top:14px;text-decoration:none;color:inherit}
+.video .play{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+.video b{display:block}
+.video span{font-size:13px;color:var(--muted);word-break:break-all}
+.scaler{padding:16px;margin-top:14px;border:2px solid #f6c7a5;background:#fff8f1}
+.scaler h3{font-size:19px;margin-bottom:10px}
+.sc-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sc-row select,.sc-row input{padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:#fff;min-height:46px}
+.sc-row select{flex:1 1 100%;width:100%;min-width:0}
+.sc-row .amt{display:flex;align-items:center;gap:6px;flex:1 1 160px}
+.sc-row .amt input{width:100%;font-size:20px;font-weight:700;text-align:right}
+.factor{font-weight:700;color:var(--accent-2);margin-top:10px;font-size:15px}
+.ing{display:flex;gap:12px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid var(--line)}
+.ing:last-child{border-bottom:none}
+.ing .q{min-width:96px;font-weight:700;color:var(--accent-2);font-variant-numeric:tabular-nums}
+.ing .q.changed{color:var(--green)}
+.ing.done{opacity:.45}.ing.done .n{text-decoration:line-through}
+.ing .main-tag{font-size:11px;font-weight:700;background:var(--ink);color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.ck{width:26px;height:26px;border-radius:8px;border:2px solid #cdb9a0;background:#fff;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;margin-top:1px}
+.ck.on{background:var(--green);border-color:var(--green)}
+.step{padding:14px 16px;margin:10px 0}
+.step.done{opacity:.5}
+.step-h{display:flex;align-items:center;gap:10px}
+.step-n{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.step-h h3{font-size:18px;flex:1}
+.step p{margin:10px 0 0;white-space:pre-wrap}
+.amt-tok{font-weight:700;color:var(--accent-2);background:var(--accent-soft);border-radius:6px;padding:0 4px}
+.amt-tok.changed{color:var(--green);background:var(--green-soft)}
+.timer{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.timer .clock{font-variant-numeric:tabular-nums;font-weight:700;font-size:20px}
+.timer.ring .clock{color:var(--red);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.3}}
+.notes{padding:14px 16px;white-space:pre-wrap;background:#fffbea;border-color:#f3e3a0}
+/* sheet / modal */
+.sheet{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column}
+.sheet-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:calc(10px + var(--safe-t)) 14px 10px;border-bottom:1px solid var(--line);background:var(--card)}
+.sheet-top .t{font-weight:700;font-size:14px;color:var(--muted);text-align:right}
+.sheet-body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+.sheet-body .in{max-width:820px;margin:0 auto;padding:14px 14px calc(40px + var(--safe-b))}
+.done-btn{min-width:130px}
+.modal-bg{position:fixed;inset:0;z-index:60;background:rgba(30,20,10,.45);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--card);border-radius:18px;max-width:420px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.25);overflow:hidden}
+.modal .mh{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:10px;border-bottom:1px solid var(--line)}
+.modal .mh b{text-align:center}
+.modal .mb{padding:16px 18px}
+.modal .mf{display:flex;gap:10px;justify-content:center;padding:0 18px 18px}
+label.f{display:block;font-weight:600;font-size:14px;color:var(--muted);margin:14px 0 6px}
+.inp{width:100%;padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:#fff}
+textarea.inp{min-height:90px;resize:vertical}
+.edit-lang{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#efe5d6;border-radius:14px;padding:10px 12px;margin-bottom:6px}
+.edit-lang .lang{background:#dccdb7}
+.e-ing{padding:10px;margin:8px 0;background:#fff;border:1px solid var(--line);border-radius:14px;transition:transform .2s;touch-action:pan-y;position:relative}
+.e-ing .r1{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.e-ing .r1 input.n{width:76px;padding:9px;border-radius:10px;border:1.5px solid var(--line);text-align:right}
+.e-ing .r1 select{padding:9px;border-radius:10px;border:1.5px solid var(--line);background:#fff;max-width:130px}
+.e-ing .nm{margin-top:8px}
+.mainpick{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;padding:6px 10px;border-radius:999px;background:#efe5d6;border:1.5px solid var(--line);color:var(--muted)}
+.mainpick.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.toggle{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;padding:6px 10px;border-radius:999px;background:var(--green-soft);border:1.5px solid #9ee2b4;color:var(--green)}
+.toggle.off{background:#efe5d6;color:var(--muted);border-color:var(--line)}
+.tok-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tok-bar button{font-size:13px;padding:5px 9px;border-radius:8px;background:var(--accent-soft);color:var(--accent-2);border:1.5px solid #f6c7a5;font-weight:600}
+.hint{font-size:13px;color:var(--muted);margin-top:4px}
+.toast{position:fixed;left:50%;bottom:calc(90px + var(--safe-b));transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;z-index:80;font-weight:600;max-width:90vw;text-align:center}
+.ring-banner{position:fixed;top:calc(70px + var(--safe-t));left:50%;transform:translateX(-50%);z-index:70;background:var(--red);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow)}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.hide{display:none!important}
+@media (min-width:700px){ .ing .q{min-width:120px} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<script>window.RX_PUBLIC=true;</script>
+<script>
+"use strict";
+/* ================= i18n ================= */
+const T = {
+  es:{app:"Recetas G Lugo",search:"Buscar receta…",all:"Todas",newR:"Nueva receta",paste:"Pegar receta",
+    empty:"Aún no hay recetas. Toca “+ Nueva” o “Pegar receta”.",loading:"Cargando recetas…",
+    offline:"No se pudo conectar. Mostrando recetas guardadas en este dispositivo.",
+    localMode:"Guardando solo en este dispositivo.",readonly:"Solo lectura — puedes ver y calcular porciones.",
+    back:"Atrás",edit:"Editar",video:"Ver video / receta original",openLink:"Abrir enlace",
+    scale:"Calcular porción",scaleBy:"Basado en",amount:"Cantidad",reset:"Receta completa",
+    factor:"Multiplicador",ingredients:"Ingredientes",steps:"Pasos",notes:"Notas",
+    toTaste:"al gusto",start:"Iniciar",pause:"Pausa",resume:"Seguir",resetT:"Reiniciar",
+    timeUp:"¡Tiempo!",stop:"Parar",step:"Paso",min:"min",
+    del:"Borrar",delQ:"¿Borrar esta receta?",delRowQ:"¿Quitar esta fila?",delMsg:"Esto no se puede deshacer.",cancel:"Cancelar",
+    done:"Listo",editing:"Editando en",title:"Nombre de la receta",link:"Enlace de video (Instagram, TikTok, YouTube…)",
+    tags:"Etiquetas (separadas por coma)",emoji:"Ícono",servings:"Rinde (opcional)",
+    ingName:"Ingrediente",addIng:"+ Ingrediente",addStep:"+ Paso",addPreset:"+ Porción rápida",
+    main:"Principal",scales:"Se escala",noScale:"Fijo",
+    max:"hasta",stepTitle:"Título del paso",stepText:"Instrucciones",timerMin:"Temporizador (min)",
+    insertAmt:"Insertar cantidad que se escala:",presets:"Porciones rápidas (ej. 1 bolsa = 800 g)",presetLabel:"Nombre",presetVal:"Cantidad del principal",
+    translate:"Traducir lo que falta",translating:"Traduciendo…",translated:"Traducción lista",
+    pasteTitle:"Pegar receta",pasteHelp:"Pega el texto de la receta (por ejemplo, la descripción de Instagram) y el enlace del video.",
+    pasteText:"Texto de la receta",organize:"Organizar con Claude",organizing:"Organizando…",saveRaw:"Guardar tal cual",
+    saved:"Guardado",saveFail:"No se pudo guardar",needTitle:"Sin nombre",untitled:"Receta sin nombre",
+    aiFail:"Claude no pudo hacerlo ahora. Intenta otra vez.",deleteRecipe:"Borrar receta",
+    mainHint:"Marca el ingrediente principal: es el que usas para calcular porciones.",
+    tokHint:"Las cantidades insertadas cambian solas al calcular porciones.",swipeHint:"Desliza a la izquierda para borrar.",
+    units:"Unidad",share:"Compartir",copy:"Copiar mensaje",copied:"Copiado — pégalo en un texto o WhatsApp",copyManual:"Mantén presionado el texto y copia",shareMsg:"Pon cuánto quieres hacer y la receta se calcula sola",shareHelp:"Quien abra este enlace verá solo esta receta, con la calculadora — sin cuenta ni app. No puede editarla ni ver tus otras recetas. Si cambias la receta, manda un enlace nuevo.",notFound:"No se encontró esta receta.",askLink:"Pide el enlace de una receta para verla aquí.",shareNote:"Para compartir: usa el botón Compartir de esta página. Tus amigos pueden cambiar a English arriba."},
+  en:{app:"Recetas G Lugo",search:"Search recipes…",all:"All",newR:"New recipe",paste:"Paste recipe",
+    empty:"No recipes yet. Tap “+ New” or “Paste recipe”.",loading:"Loading recipes…",
+    offline:"Couldn't connect. Showing recipes saved on this device.",
+    localMode:"Saving on this device only.",readonly:"View only — you can view and scale portions.",
+    back:"Back",edit:"Edit",video:"Watch video / original recipe",openLink:"Open link",
+    scale:"Scale the recipe",scaleBy:"Based on",amount:"Amount",reset:"Full recipe",
+    factor:"Multiplier",ingredients:"Ingredients",steps:"Steps",notes:"Notes",
+    toTaste:"to taste",start:"Start",pause:"Pause",resume:"Resume",resetT:"Reset",
+    timeUp:"Time's up!",stop:"Stop",step:"Step",min:"min",
+    del:"Delete",delQ:"Delete this recipe?",delRowQ:"Remove this row?",delMsg:"This can't be undone.",cancel:"Cancel",
+    done:"Done",editing:"Editing in",title:"Recipe name",link:"Video link (Instagram, TikTok, YouTube…)",
+    tags:"Tags (comma separated)",emoji:"Icon",servings:"Makes (optional)",
+    ingName:"Ingredient",addIng:"+ Ingredient",addStep:"+ Step",addPreset:"+ Quick portion",
+    main:"Main",scales:"Scales",noScale:"Fixed",
+    max:"to",stepTitle:"Step title",stepText:"Instructions",timerMin:"Timer (min)",
+    insertAmt:"Insert scaling amount:",presets:"Quick portions (e.g. 1 bag = 800 g)",presetLabel:"Label",presetVal:"Main ingredient amount",
+    translate:"Fill in missing translation",translating:"Translating…",translated:"Translation done",
+    pasteTitle:"Paste a recipe",pasteHelp:"Paste the recipe text (for example an Instagram caption) and the video link.",
+    pasteText:"Recipe text",organize:"Organize with Claude",organizing:"Organizing…",saveRaw:"Save as is",
+    saved:"Saved",saveFail:"Couldn't save",needTitle:"Untitled",untitled:"Untitled recipe",
+    aiFail:"Claude couldn't do that right now. Try again.",deleteRecipe:"Delete recipe",
+    mainHint:"Mark the main ingredient: it's the one you use to scale portions.",
+    tokHint:"Inserted amounts update automatically when you scale.",swipeHint:"Swipe left to delete.",
+    units:"Unit",share:"Share",copy:"Copy message",copied:"Copied — paste it in a text or WhatsApp",copyManual:"Press and hold the text to copy",shareMsg:"Enter how much you want to make and the recipe calculates itself",shareHelp:"Whoever opens this link sees only this recipe, with the calculator — no account or app needed. They can't edit it or see your other recipes. If you change the recipe, send a new link.",notFound:"Recipe not found.",askLink:"Ask for a recipe link to see it here.",shareNote:"To share: use this page's Share button. Friends can switch to English at the top."}
+};
+const UNITS = {
+  "":     {es:["",""],en:["",""]},
+  g:      {es:["g","g"],en:["g","g"]},
+  kg:     {es:["kg","kg"],en:["kg","kg"]},
+  ml:     {es:["ml","ml"],en:["ml","ml"]},
+  l:      {es:["L","L"],en:["L","L"]},
+  taza:   {es:["taza","tazas"],en:["cup","cups"]},
+  cda:    {es:["cda","cdas"],en:["tbsp","tbsp"]},
+  cdta:   {es:["cdta","cdtas"],en:["tsp","tsp"]},
+  pza:    {es:["pieza","piezas"],en:["piece","pieces"]},
+  cabeza: {es:["cabeza","cabezas"],en:["head","heads"]},
+  diente: {es:["diente","dientes"],en:["clove","cloves"]},
+  hoja:   {es:["hoja","hojas"],en:["leaf","leaves"]},
+  cubo:   {es:["cubo","cubos"],en:["cube","cubes"]},
+  lata:   {es:["lata","latas"],en:["can","cans"]},
+  bolsa:  {es:["bolsa","bolsas"],en:["bag","bags"]},
+  manojo: {es:["manojo","manojos"],en:["bunch","bunches"]},
+  pizca:  {es:["pizca","pizcas"],en:["pinch","pinches"]},
+  lb:     {es:["lb","lb"],en:["lb","lb"]},
+  oz:     {es:["oz","oz"],en:["oz","oz"]},
+  floz:   {es:["oz líq.","oz líq."],en:["fl oz","fl oz"]}
+};
+const EMOJIS = ["🍲","🌽","🌮","🥘","🍖","🍗","🥩","🐟","🍤","🥗","🍝","🍚","🫘","🌶️","🥑","🍞","🥐","🍰","🎂","🍪","🍮","🥤","☕","🍹"];
+
+/* ================= state ================= */
+const LS = {
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const S = {
+  lang: LS.get("rx.lang","es"),
+  recipes: [], mode:"loading", canEdit:false, roleKnown:false, offlineNote:false,
+  q:"", tag:"", view:null, editor:null, sample:null, db:null
+};
+const t = k => (T[S.lang]||T.es)[k] || T.es[k] || k;
+const L = o => { if(!o) return ""; if(typeof o==="string") return o; return o[S.lang] || o[S.lang==="es"?"en":"es"] || ""; };
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
+const slugify = s => (String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)) || "receta";
+
+/* ================= number formatting ================= */
+function frac(n){
+  if(n<0.12) return trimNum(n,2);
+  let w=Math.floor(n), r=n-w, q=Math.round(r*4)/4;
+  if(q===1){w+=1;q=0}
+  const f={0:"",0.25:"¼",0.5:"½",0.75:"¾"}[q];
+  return (w? String(w):"") + f || "0";
+}
+function trimNum(n,d){return String(+n.toFixed(d))}
+function roundG(g){ if(g<10) return trimNum(g,1); if(g<100) return String(Math.round(g)); return String(Math.round(g/5)*5); }
+// returns {num, unit} after smart conversion
+function smart(q, unit){
+  switch(unit){
+    case "g": if(q>=1000) return {s:trimNum(q/1000,2),u:"kg",n:q/1000}; return {s:roundG(q),u:"g",n:q};
+    case "kg": if(q<1) return {s:roundG(q*1000),u:"g",n:q*1000}; return {s:trimNum(Math.round(q*100)/100,2),u:"kg",n:q};
+    case "ml": if(q>=1000) return {s:trimNum(q/1000,2),u:"l",n:q/1000}; return {s:String(q<50?Math.round(q):Math.round(q/10)*10),u:"ml",n:q};
+    case "l": if(q<1) return {s:String(Math.round(q*100)*10),u:"ml",n:q*1000}; return {s:trimNum(q,1),u:"l",n:q};
+    case "taza": if(q<0.25) return smart(q*16,"cda"); return {s:frac(q),u:"taza",n:q};
+    case "cda": if(q<0.9) return {s:frac(q*3),u:"cdta",n:q*3}; return {s:frac(q),u:"cda",n:q};
+    case "lb": if(q<1) return {s:String(Math.round(q*16)),u:"oz",n:q*16}; return {s:frac(q),u:"lb",n:q};
+    default: return {s:frac(q),u:unit,n:q};
+  }
+}
+function unitLabel(u,n){ const d=UNITS[u]; if(!d) return u||""; const arr=d[S.lang]||d.es; return (n!=null && n>1.01)?arr[1]:arr[0]; }
+function fmtIng(ing, f){
+  if(ing.qty==null || ing.qty==="" || isNaN(+ing.qty)) return t("toTaste");
+  const k = ing.scale===false ? 1 : f;
+  const a = smart(+ing.qty*k, ing.unit||"");
+  let s = a.s;
+  if(ing.qtyMax!=null && ing.qtyMax!=="" && !isNaN(+ing.qtyMax)){
+    const b = smart(+ing.qtyMax*k, ing.unit||"");
+    if(b.u===a.u) s = a.s+"–"+b.s;
+    else { const conv={"cda>cdta":3,"taza>cda":16,"kg>g":1000,"l>ml":1000,"g>kg":.001,"ml>l":.001,"cdta>cda":1/3,"cda>taza":1/16,"lb>oz":16};
+      const c=conv[b.u+">"+a.u]; if(c){ const n=b.n*c; s=a.s+"–"+(["g","ml"].includes(a.u)?roundG(n):["kg","l"].includes(a.u)?trimNum(n,2):frac(n)); }
+      else { s = a.s+" "+unitLabel(a.u,a.n)+" – "+b.s+" "+unitLabel(b.u,b.n); a.u="__done"; } }
+  }
+  if(a.u==="__done") return s;
+  const ul = unitLabel(a.u, a.n);
+  return ul ? s+" "+ul : s;
+}
+
+/* ================= data layer ================= */
+let unsub=null, loadTimer=null;
+async function initData(){
+  S.recipes = LS.get("rx.cache",[]);
+  render();
+  let db=null;
+  try{ db = await window.claude?.use?.("db"); }catch(e){ db=null; }
+  try{ S.sample = await window.claude?.use?.("sample"); }catch(e){ S.sample=null; }
+  try{
+    const u = await window.claude?.use?.("user");
+    if(u){ S.canEdit = (await u.canEdit())===true || (await u.isOwner())===true; }
+  }catch(e){}
+  S.roleKnown=true;
+  if(!db){ S.canEdit=true; S.mode="local"; S.recipes = LS.get("rx.local",[]); render(); return; }
+  S.db=db;
+  loadTimer=setTimeout(()=>{ S.offlineNote=true; if(S.mode==="loading") S.mode="db"; render(); },10000);
+  unsub = db.collection("recipes").onSnapshot(snap=>{
+    S.recipes = snap.docs.filter(d=>d.exists).map(d=>({...JSON.parse(JSON.stringify(d.data())), id:d.id}));
+    S.mode="db";
+    if(!snap.metadata.fromCache){ clearTimeout(loadTimer); S.offlineNote=false; }
+    LS.set("rx.cache", S.recipes);
+    render();
+  }, err=>{ clearTimeout(loadTimer); S.mode="db"; S.offlineNote=true; render(); });
+}
+async function saveRecipe(r){
+  r.updated = Date.now();
+  if(S.mode==="local"){
+    const i=S.recipes.findIndex(x=>x.id===r.id); if(i>=0) S.recipes[i]=r; else S.recipes.push(r);
+    LS.set("rx.local",S.recipes); render(); return true;
+  }
+  try{
+    const body=JSON.parse(JSON.stringify(r)); delete body.id;
+    await S.db.collection("recipes").doc(r.id).set(body);
+    return true;
+  }catch(e){
+    if(e && e.code==="invalid_argument"){ S.canEdit=false; }
+    toast(t("saveFail")+(e&&e.code==="quota_exceeded"?" (quota)":""));
+    render(); return false;
+  }
+}
+async function deleteRecipe(id){
+  if(S.mode==="local"){ S.recipes=S.recipes.filter(r=>r.id!==id); LS.set("rx.local",S.recipes); render(); return; }
+  try{ await S.db.collection("recipes").doc(id).delete(); }catch(e){ toast(t("saveFail")); }
+}
+
+/* ================= routing ================= */
+function route(){
+  const h=location.hash.replace(/^#/,"");
+  S.view = h.startsWith("r-") ? h.slice(2) : null;
+  render(); window.scrollTo(0,0);
+}
+function go(id){ location.hash = id ? "r-"+id : ""; if(!id) { history.replaceState(null,"",location.pathname+location.search); route(); } }
+if(!window.RX_PUBLIC) window.addEventListener("hashchange",route);
+
+/* ================= render ================= */
+const app=document.getElementById("app"), layer=document.getElementById("layer");
+function langToggle(){
+  return `<div class="lang"><button data-lang="es" class="${S.lang==="es"?"on":""}">ES</button><button data-lang="en" class="${S.lang==="en"?"on":""}">EN</button></div>`;
+}
+function render(){
+  document.documentElement.lang=S.lang;
+  const r = S.view && S.recipes.find(x=>x.id===S.view);
+  if(S.view && r) renderRecipe(r); else if(S.canEdit) renderList(); else renderGuest();
+}
+function renderGuest(){
+  const waiting = !S.roleKnown || S.mode==="loading";
+  app.innerHTML=`<div class="top"><div class="top-in"><h1>🍲 ${t("app")}</h1>${langToggle()}</div></div>
+  <div class="wrap"><div class="empty">${waiting?`<span class="spin" style="border-color:#e8dccb;border-top-color:var(--accent)"></span><br><br>${t("loading")}`:(S.view?t("notFound"):t("askLink"))}</div></div>`;
+  bindLang();
+}
+function renderList(){
+  const tags=[...new Set(S.recipes.flatMap(r=>(r.tags||[]).map(L)).filter(Boolean))].sort();
+  const q=S.q.trim().toLowerCase();
+  let list=S.recipes.filter(r=>{
+    if(S.tag && !(r.tags||[]).map(L).includes(S.tag)) return false;
+    if(!q) return true;
+    const hay=[L(r.title),r.title?.es,r.title?.en,...(r.ingredients||[]).flatMap(i=>[i.name?.es,i.name?.en])].join(" ").toLowerCase();
+    return hay.includes(q);
+  }).sort((a,b)=>L(a.title).localeCompare(L(b.title)));
+  let status="";
+  if(S.mode==="loading" && !S.recipes.length) status=`<p class="note">${t("loading")}</p>`;
+  else if(S.offlineNote) status=`<p class="note">⚠️ ${t("offline")}</p>`;
+  else if(S.mode==="local") status=`<p class="note">📱 ${t("localMode")}</p>`;
+  if(!S.canEdit) status+=`<p class="note">👀 ${t("readonly")}</p>`;
+  app.innerHTML=`
+  <div class="top"><div class="top-in"><h1>🍲 ${t("app")}</h1>${langToggle()}</div></div>
+  <div class="wrap">
+    <input class="search" id="q" placeholder="${t("search")}" value="${esc(S.q)}">
+    ${tags.length?`<div class="chips"><button class="chip ${S.tag?"":"on"}" data-tag="">${t("all")}</button>${tags.map(g=>`<button class="chip ${S.tag===g?"on":""}" data-tag="${esc(g)}">${esc(g)}</button>`).join("")}</div>`:""}
+    ${status}
+    ${S.canEdit?`<div class="chips"><button class="btn sec" id="pasteBtn">📋 ${t("paste")}</button></div>`:""}
+    ${list.length?list.map(r=>`
+      <div class="row-wrap">
+        ${S.canEdit?`<button class="row-del" data-del="${esc(r.id)}">🗑 ${t("del")}</button>`:""}
+        <div class="card rcard" data-open="${esc(r.id)}">
+          <div class="em">${esc(r.emoji||"🍲")}</div>
+          <div style="flex:1;min-width:0">
+            <h3>${esc(L(r.title)||t("untitled"))}</h3>
+            <div class="meta">${r.link?`<span class="badge">▶ Video</span>`:""}${(r.tags||[]).map(L).filter(Boolean).map(esc).join(" · ")}${(r.ingredients||[]).length?` · ${(r.ingredients||[]).length} ${t("ingredients").toLowerCase()}`:""}</div>
+          </div>
+          <div style="color:var(--muted);font-size:22px">›</div>
+        </div>
+      </div>`).join(""):(S.mode!=="loading"||S.recipes.length?`<div class="empty">${S.recipes.length?"—":t("empty")}</div>`:"")}
+    ${list.length && S.canEdit?`<p class="note">↔️ ${t("swipeHint")}</p>`:""}
+    <p class="note">🔗 ${t("shareNote")}</p>
+  </div>
+  ${S.canEdit?`<button class="btn fab" id="newBtn">+ ${t("newR")}</button>`:""}`;
+  const qi=document.getElementById("q");
+  qi.oninput=e=>{S.q=e.target.value; const pos=e.target.selectionStart; renderList(); const n=document.getElementById("q"); n.focus(); try{n.setSelectionRange(pos,pos)}catch(_){}};
+  app.querySelectorAll("[data-tag]").forEach(b=>b.onclick=()=>{S.tag=b.dataset.tag;renderList();});
+  app.querySelectorAll("[data-open]").forEach(el=>{ if(S.canEdit) swipeable(el,()=>confirmDel(el.dataset.open)); el.addEventListener("click",()=>{ if(el._swiped){el._swiped=false;return;} go(el.dataset.open); }); });
+  app.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>confirmDel(b.dataset.del));
+  const nb=document.getElementById("newBtn"); if(nb) nb.onclick=()=>openEditor(null);
+  const pb=document.getElementById("pasteBtn"); if(pb) pb.onclick=openPaste;
+  bindLang();
+}
+function bindLang(root=document){
+  root.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>{S.lang=b.dataset.lang;LS.set("rx.lang",S.lang);render(); if(S.editor) renderEditor();});
+}
+function confirmDel(id){
+  const r=S.recipes.find(x=>x.id===id);
+  confirmBox(t("delQ"), `<b>${esc(L(r?.title)||t("untitled"))}</b><br><span class="hint">${t("delMsg")}</span>`, t("del"), async()=>{
+    await deleteRecipe(id); if(S.view===id) go(null);
+  }, ()=>renderList());
+}
+
+/* ---- swipe to delete ---- */
+function swipeable(el, onDelete){
+  let x0=null,y0=null,dx=0,dragging=false,open=false;
+  const W=96;
+  el.addEventListener("pointerdown",e=>{ if(e.pointerType==="mouse" && e.button!==0) return; x0=e.clientX;y0=e.clientY;dx=0;dragging=false; el.style.transition="none"; });
+  el.addEventListener("pointermove",e=>{
+    if(x0==null) return;
+    const mx=e.clientX-x0,my=e.clientY-y0;
+    if(!dragging){ if(Math.abs(mx)>10 && Math.abs(mx)>Math.abs(my)*1.3){dragging=true; try{el.setPointerCapture(e.pointerId)}catch(_){} } else if(Math.abs(my)>12){x0=null;return;} else return; }
+    dx=Math.min(0,(open?-W:0)+mx); el.style.transform=`translateX(${Math.max(dx,-W*1.6)}px)`;
+  });
+  const end=()=>{
+    if(x0==null) return; x0=null; el.style.transition="";
+    if(!dragging){ if(open){ open=false; el.style.transform=""; el._swiped=true; } return; }
+    el._swiped=true;
+    if(dx < -W*1.4){ el.style.transform=""; open=false; onDelete(); }
+    else if(dx < -W/2){ open=true; el.style.transform=`translateX(${-W}px)`; }
+    else { open=false; el.style.transform=""; }
+  };
+  el.addEventListener("pointerup",end); el.addEventListener("pointercancel",end);
+}
+
+/* ================= recipe view ================= */
+const cook = { get(id){ return LS.get("rx.cook."+id,{ing:{},step:{}}) }, set(id,v){ LS.set("rx.cook."+id,v) } };
+const scaleState = {}; // id -> {base, amount}
+function getFactor(r){
+  const st=scaleState[r.id]; if(!st) return 1;
+  const ing=(r.ingredients||[]).find(i=>i.id===st.base);
+  if(!ing || !(+ing.qty>0) || !(+st.amount>0)) return 1;
+  return (+st.amount)/(+ing.qty);
+}
+function renderStepText(text, r, f){
+  let out=esc(text||"");
+  return out.replace(/\{(i[a-z0-9]+)\}/g,(m,id)=>{
+    const ing=(r.ingredients||[]).find(i=>i.id===id); if(!ing) return m;
+    return `<span class="amt-tok ${Math.abs(f-1)>1e-6 && ing.scale!==false?"changed":""}">${esc(fmtIng(ing,f))}</span>`;
+  });
+}
+function renderRecipe(r){
+  const f=getFactor(r), st=scaleState[r.id]||{};
+  const ings=r.ingredients||[];
+  const mainId = r.mainId || ings.find(i=>+i.qty>0)?.id;
+  const baseId = st.base || mainId;
+  const baseIng = ings.find(i=>i.id===baseId);
+  const scalable = ings.filter(i=>+i.qty>0);
+  const c=cook.get(r.id);
+  const changed=Math.abs(f-1)>1e-6;
+  const amtVal = st.amount!=null ? st.amount : (baseIng?baseIng.qty:"");
+  app.innerHTML=`
+  <div class="top"><div class="top-in">
+    ${S.canEdit?`<button class="icon-btn" id="backBtn" aria-label="${t("back")}">‹</button>`:`<b style="font-family:Fraunces,serif;font-size:18px">🍲 ${t("app")}</b>`}
+    <div style="flex:1"></div>
+    ${langToggle()}
+    ${S.canEdit?`<button class="btn sm sec" id="shareBtn" aria-label="${t("share")}">🔗</button><button class="btn sm" id="editBtn">✏️ ${t("edit")}</button>`:""}
+  </div></div>
+  <div class="wrap">
+    <h2 style="font-size:28px;margin-top:16px">${esc(r.emoji||"🍲")} ${esc(L(r.title)||t("untitled"))}</h2>
+    ${r.link?`<a class="card video" href="${esc(r.link)}" target="_blank" rel="noopener"><div class="play">▶</div><div style="min-width:0"><b>${t("video")}</b><span>${esc(r.link)}</span></div></a>`:""}
+    ${scalable.length?`
+    <div class="card scaler">
+      <h3>⚖️ ${t("scale")}</h3>
+      <div class="sc-row">
+        <select id="baseSel" aria-label="${t("scaleBy")}">${scalable.map(i=>`<option value="${esc(i.id)}" ${i.id===baseId?"selected":""}>${esc(L(i.name))}${i.id===mainId?" ★":""}</option>`).join("")}</select>
+        <div class="amt"><input id="amtIn" type="number" inputmode="decimal" step="any" min="0" value="${esc(amtVal)}"><b>${esc(unitLabel(baseIng?.unit||"",2))}</b></div>
+      </div>
+      <div class="chips">
+        ${(r.presets||[]).map(p=>`<button class="chip ${changed||st.amount!=null?(+st.amount===+p.value&&baseId===mainId?"on":""):""}" data-preset="${esc(p.value)}">${esc(L(p.label))}</button>`).join("")}
+        <button class="chip" data-mult="0.5">½×</button><button class="chip" data-mult="2">2×</button>
+        <button class="chip ${!changed?"on":""}" id="resetBtn">↺ ${t("reset")}</button>
+      </div>
+      <div class="factor">${t("factor")}: ×${trimNum(f,3)}${r.servings?` · ${esc(L(r.servings))}`:""}</div>
+    </div>`:""}
+    <div class="sec-title">🧺 ${t("ingredients")}</div>
+    <div class="card">${ings.map(i=>`
+      <div class="ing ${c.ing[i.id]?"done":""}" data-ck="${esc(i.id)}">
+        <div class="ck ${c.ing[i.id]?"on":""}">${c.ing[i.id]?"✓":""}</div>
+        <div class="q ${changed&&i.scale!==false&&+i.qty>0?"changed":""}">${esc(fmtIng(i,f))}</div>
+        <div class="n">${esc(L(i.name))}${i.id===mainId?`<span class="main-tag">★ ${t("main")}</span>`:""}</div>
+      </div>`).join("")||`<div class="ing">—</div>`}</div>
+    ${(r.steps||[]).length?`<div class="sec-title">👩‍🍳 ${t("steps")}</div>
+    ${(r.steps||[]).map((s,ix)=>`
+      <div class="card step ${c.step[ix]?"done":""}">
+        <div class="step-h"><div class="step-n">${ix+1}</div><h3>${esc(L(s.title)||t("step")+" "+(ix+1))}</h3>
+          <button class="ck ${c.step[ix]?"on":""}" data-sck="${ix}" aria-label="done">${c.step[ix]?"✓":""}</button></div>
+        <p>${renderStepText(L(s.text),r,f)}</p>
+        ${+s.timer>0?`<div class="timer" data-timer="${ix}" data-min="${+s.timer}"><span>⏱</span><span class="clock">${fmtClock(timerLeft(r.id,ix,+s.timer))}</span>${timerBtns(r.id,ix)}</div>`:""}
+      </div>`).join("")}`:""}
+    ${L(r.notes)?`<div class="sec-title">📝 ${t("notes")}</div><div class="card notes">${esc(L(r.notes))}</div>`:""}
+  </div>`;
+  const bb=document.getElementById("backBtn"); if(bb) bb.onclick=()=>go(null);
+  const sb=document.getElementById("shareBtn"); if(sb) sb.onclick=()=>shareRecipe(r);
+  const eb=document.getElementById("editBtn"); if(eb) eb.onclick=()=>openEditor(r);
+  const bs=document.getElementById("baseSel");
+  if(bs){
+    bs.onchange=()=>{ const ing=ings.find(i=>i.id===bs.value); const cur=getFactor(r); scaleState[r.id]={base:bs.value, amount: +( (+ing.qty)*cur ).toFixed(3)}; renderRecipe(r); };
+    const ai=document.getElementById("amtIn");
+    ai.oninput=()=>{ scaleState[r.id]={base:bs.value, amount: ai.value===""?null:+ai.value}; softUpdate(r); };
+    app.querySelectorAll("[data-preset]").forEach(b=>b.onclick=()=>{ scaleState[r.id]={base:mainId, amount:+b.dataset.preset}; renderRecipe(r); });
+    app.querySelectorAll("[data-mult]").forEach(b=>b.onclick=()=>{ const cur=getFactor(r)*(+b.dataset.mult); const ing=ings.find(i=>i.id===bs.value); scaleState[r.id]={base:bs.value, amount:+((+ing.qty)*cur).toFixed(3)}; renderRecipe(r); });
+    document.getElementById("resetBtn").onclick=()=>{ delete scaleState[r.id]; renderRecipe(r); };
+  }
+  app.querySelectorAll("[data-ck]").forEach(el=>el.onclick=()=>{ const c=cook.get(r.id); c.ing[el.dataset.ck]=!c.ing[el.dataset.ck]; cook.set(r.id,c); renderRecipe(r); });
+  app.querySelectorAll("[data-sck]").forEach(el=>el.onclick=()=>{ const c=cook.get(r.id); c.step[el.dataset.sck]=!c.step[el.dataset.sck]; cook.set(r.id,c); renderRecipe(r); });
+  bindTimers(r);
+  bindLang();
+}
+// update numbers without rebuilding input (keeps keyboard open)
+function softUpdate(r){
+  const f=getFactor(r), changed=Math.abs(f-1)>1e-6;
+  const ings=r.ingredients||[];
+  app.querySelectorAll(".ing[data-ck]").forEach(el=>{ const i=ings.find(x=>x.id===el.dataset.ck); const q=el.querySelector(".q"); q.textContent=fmtIng(i,f); q.classList.toggle("changed",changed&&i.scale!==false&&+i.qty>0); });
+  app.querySelectorAll(".step").forEach((el,ix)=>{ const p=el.querySelector("p"); if(p) p.innerHTML=renderStepText(L(r.steps[ix].text),r,f); });
+  const fe=app.querySelector(".factor"); if(fe) fe.firstChild.textContent=`${t("factor")}: ×${trimNum(f,3)}`;
+  const rb=document.getElementById("resetBtn"); if(rb) rb.classList.toggle("on",!changed);
+}
+
+/* ---- timers ---- */
+const timers={}; // key -> {end, left, running}
+let tickH=null, audioCtx=null, ringing=null;
+const tkey=(id,ix)=>id+"#"+ix;
+function timerLeft(id,ix,min){ const tm=timers[tkey(id,ix)]; if(!tm) return min*60; return tm.running?Math.max(0,(tm.end-Date.now())/1000):tm.left; }
+function fmtClock(s){ s=Math.ceil(s); const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60; return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0"); }
+function timerBtns(id,ix){
+  const tm=timers[tkey(id,ix)];
+  if(!tm) return `<button class="btn sm green" data-tact="start">▶ ${t("start")}</button>`;
+  return (tm.running?`<button class="btn sm ghost" data-tact="pause">⏸ ${t("pause")}</button>`:`<button class="btn sm green" data-tact="resume">▶ ${t("resume")}</button>`)+`<button class="btn sm ghost" data-tact="reset">↺ ${t("resetT")}</button>`;
+}
+function bindTimers(r){
+  app.querySelectorAll("[data-timer]").forEach(el=>{
+    const ix=+el.dataset.timer, min=+el.dataset.min, k=tkey(r.id,ix);
+    el.querySelectorAll("[data-tact]").forEach(b=>b.onclick=()=>{
+      try{ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); audioCtx.resume&&audioCtx.resume(); }catch(_){}
+      const a=b.dataset.tact, tm=timers[k];
+      if(a==="start") timers[k]={end:Date.now()+min*60000,running:true,label:L(r.steps[ix].title)||t("step")+" "+(ix+1)};
+      else if(a==="pause"){ tm.left=Math.max(0,(tm.end-Date.now())/1000); tm.running=false; }
+      else if(a==="resume"){ tm.end=Date.now()+tm.left*1000; tm.running=true; }
+      else if(a==="reset") delete timers[k];
+      wakeLock(); ensureTick(); renderRecipe(r);
+    });
+  });
+}
+function ensureTick(){
+  if(tickH) return;
+  tickH=setInterval(()=>{
+    let any=false;
+    for(const k in timers){ const tm=timers[k]; if(!tm.running) continue; any=true;
+      if(Date.now()>=tm.end){ tm.running=false; tm.left=0; ring(tm.label); }
+    }
+    document.querySelectorAll("[data-timer]").forEach(el=>{
+      const r=S.recipes.find(x=>x.id===S.view); if(!r) return;
+      const ix=+el.dataset.timer, left=timerLeft(r.id,ix,+el.dataset.min);
+      el.querySelector(".clock").textContent=fmtClock(left);
+      el.classList.toggle("ring", timers[tkey(r.id,ix)] && left<=0);
+    });
+    if(!any && !ringing){ clearInterval(tickH); tickH=null; }
+  },500);
+}
+function ring(label){
+  if(ringing) return;
+  const ban=document.createElement("div"); ban.className="ring-banner";
+  ban.innerHTML=`⏰ ${t("timeUp")} — ${esc(label)} <button class="btn sm ghost">${t("stop")}</button>`;
+  document.body.appendChild(ban);
+  try{navigator.vibrate&&navigator.vibrate([400,200,400,200,400])}catch(_){}
+  const beep=()=>{ try{ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.frequency.value=880; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(.25,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.5); o.start(); o.stop(audioCtx.currentTime+.5);}catch(_){} };
+  beep(); const iv=setInterval(beep,1200);
+  ringing={ban,iv};
+  ban.querySelector("button").onclick=()=>{ clearInterval(iv); ban.remove(); ringing=null; };
+}
+let wl=null;
+async function wakeLock(){ try{ if(!wl && navigator.wakeLock) { wl=await navigator.wakeLock.request("screen"); wl.addEventListener("release",()=>wl=null);} }catch(_){} }
+
+/* ================= modal helpers ================= */
+function confirmBox(title, html, okLabel, onOk, onCancel){
+  const bg=document.createElement("div"); bg.className="modal-bg";
+  bg.innerHTML=`<div class="modal"><div class="mh"><button class="icon-btn" data-x>✕</button><b>${esc(title)}</b><span></span></div>
+  <div class="mb">${html}</div><div class="mf"><button class="btn ghost" data-x>${t("cancel")}</button><button class="btn red" data-ok>${esc(okLabel)}</button></div></div>`;
+  layer.appendChild(bg);
+  bg.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{bg.remove(); onCancel&&onCancel();});
+  bg.querySelector("[data-ok]").onclick=()=>{bg.remove(); onOk();};
+}
+const PUBLIC_URL="https://glugoelectric.github.io/recetas/";
+const b64u={
+  enc(bytes){ let s=""; for(let i=0;i<bytes.length;i+=0x8000) s+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000)); return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); },
+  dec(str){ str=str.replace(/-/g,"+").replace(/_/g,"/"); while(str.length%4) str+="="; const b=atob(str), u=new Uint8Array(b.length); for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i); return u; }
+};
+async function streamBytes(bytes, ts){ const st=new Blob([bytes]).stream().pipeThrough(ts); return new Uint8Array(await new Response(st).arrayBuffer()); }
+async function encodeRecipe(r){
+  const m=JSON.parse(JSON.stringify(r)); delete m.updated;
+  const raw=new TextEncoder().encode(JSON.stringify(m));
+  try{ if(window.CompressionStream) return "z"+b64u.enc(await streamBytes(raw,new CompressionStream("deflate-raw"))); }catch(e){}
+  return "j"+b64u.enc(raw);
+}
+async function decodeRecipe(code){
+  const kind=code[0], bytes=b64u.dec(code.slice(1));
+  const raw = kind==="z" ? await streamBytes(bytes,new DecompressionStream("deflate-raw")) : bytes;
+  return JSON.parse(new TextDecoder().decode(raw));
+}
+async function shareRecipe(r){
+  const url=PUBLIC_URL+"#d="+(await encodeRecipe(r));
+  const msg=`${r.emoji||"🍲"} ${r.title?.es||""}${r.title?.en&&r.title.en!==r.title.es?" / "+r.title.en:""}\n${T.es.shareMsg} / ${T.en.shareMsg}\n${url}`;
+  const bg=document.createElement("div"); bg.className="modal-bg";
+  bg.innerHTML=`<div class="modal"><div class="mh"><button class="icon-btn" data-x>✕</button><b>${t("share")}</b><span></span></div>
+  <div class="mb"><p class="hint" style="margin-top:0">${t("shareHelp")}</p><textarea class="inp" readonly style="min-height:120px;font-size:15px">${esc(msg)}</textarea></div>
+  <div class="mf"><button class="btn green done-btn" data-copy>📋 ${t("copy")}</button></div></div>`;
+  layer.appendChild(bg);
+  bg.querySelector("[data-x]").onclick=()=>bg.remove();
+  bg.querySelector("[data-copy]").onclick=async()=>{
+    try{ await navigator.clipboard.writeText(msg); toast("✓ "+t("copied")); bg.remove(); }
+    catch(e){ const ta=bg.querySelector("textarea"); ta.focus(); ta.select(); toast(t("copyManual")); }
+  };
+}
+function toast(msg){ const d=document.createElement("div"); d.className="toast"; d.textContent=msg; document.body.appendChild(d); setTimeout(()=>d.remove(),2400); }
+
+/* ================= editor ================= */
+function blankRecipe(){
+  return {id:null,title:{es:"",en:""},emoji:"🍲",link:"",tags:[],servings:{es:"",en:""},mainId:"i1",
+    ingredients:[{id:"i1",qty:"",qtyMax:"",unit:"g",name:{es:"",en:""},scale:true}],
+    steps:[{title:{es:"",en:""},text:{es:"",en:""},timer:""}],presets:[],notes:{es:"",en:""}};
+}
+function normalize(r){
+  const b=blankRecipe(); r={...b,...JSON.parse(JSON.stringify(r||{}))};
+  ["title","servings","notes"].forEach(k=>{ if(typeof r[k]==="string") r[k]={es:r[k],en:""}; r[k]=r[k]||{es:"",en:""}; });
+  r.tags=(r.tags||[]).map(x=>typeof x==="string"?{es:x,en:x}:x);
+  r.ingredients=(r.ingredients||[]).map((i,ix)=>({id:i.id||"i"+(ix+1)+uid().slice(0,3),qty:i.qty??"",qtyMax:i.qtyMax??"",unit:i.unit in UNITS?i.unit:"",name:typeof i.name==="string"?{es:i.name,en:""}:(i.name||{es:"",en:""}),scale:i.scale!==false}));
+  r.steps=(r.steps||[]).map(s=>({title:typeof s.title==="string"?{es:s.title,en:""}:(s.title||{es:"",en:""}),text:typeof s.text==="string"?{es:s.text,en:""}:(s.text||{es:"",en:""}),timer:s.timer??""}));
+  r.presets=(r.presets||[]).map(p=>({label:typeof p.label==="string"?{es:p.label,en:p.label}:(p.label||{es:"",en:""}),value:p.value??""}));
+  if(!r.ingredients.find(i=>i.id===r.mainId)) r.mainId=r.ingredients[0]?.id||"";
+  return r;
+}
+function openEditor(r, isNewFromPaste){
+  S.editor={r:normalize(r), lang:S.lang, isNew:!r||!r.id||isNewFromPaste, busy:false};
+  renderEditor();
+}
+function renderEditor(){
+  const E=S.editor; if(!E) return; const r=E.r, el=E.lang;
+  const v=o=>esc(o?.[el]||"");
+  const unitOpts=u=>Object.keys(UNITS).map(k=>`<option value="${k}" ${k===u?"selected":""}>${k?esc(UNITS[k][S.lang][1]):"—"}</option>`).join("");
+  const other = el==="es"?"en":"es";
+  layer.innerHTML=`
+  <div class="sheet" id="sheet">
+    <div class="sheet-top">
+      <div><button class="icon-btn" id="eClose" aria-label="close">✕</button></div>
+      <button class="btn green done-btn" id="eDone">✓ ${t("done")}</button>
+      <div class="t">${E.isNew?t("newR"):t("edit")}</div>
+    </div>
+    <div class="sheet-body"><div class="in">
+      <div class="edit-lang">
+        <b style="font-size:14px">${t("editing")}:</b>
+        <div class="lang"><button data-elang="es" class="${el==="es"?"on":""}">Español</button><button data-elang="en" class="${el==="en"?"on":""}">English</button></div>
+        ${S.sample?`<button class="btn sm sec" id="eTrans" ${E.busy?"disabled":""}>${E.busy?`<span class="spin" style="border-top-color:var(--accent)"></span> ${t("translating")}`:"🌐 "+t("translate")}</button>`:""}
+      </div>
+      <label class="f">${t("title")}</label>
+      <input class="inp" data-f="title" value="${v(r.title)}" placeholder="${esc(r.title[other]||"")}">
+      <label class="f">${t("emoji")}</label>
+      <div class="chips" style="flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px">${EMOJIS.map(e=>`<button class="chip ${r.emoji===e?"on":""}" data-emoji="${e}" style="font-size:20px;padding:4px 9px">${e}</button>`).join("")}</div>
+      <label class="f">🔗 ${t("link")}</label>
+      <input class="inp" data-f="link" value="${esc(r.link||"")}" inputmode="url" placeholder="https://www.instagram.com/reel/…">
+      <label class="f">${t("tags")}</label>
+      <input class="inp" data-f="tags" value="${esc((r.tags||[]).map(x=>x[el]||x[other]||"").join(", "))}">
+      <label class="f">${t("servings")}</label>
+      <input class="inp" data-f="servings" value="${v(r.servings)}" placeholder="${esc(r.servings[other]||"")}">
+
+      <div class="sec-title">🧺 ${t("ingredients")}</div>
+      <p class="hint">★ ${t("mainHint")} ${t("swipeHint")}</p>
+      ${r.ingredients.map((i,ix)=>`
+        <div class="row-wrap" style="margin:8px 0;border-radius:14px"><button class="row-del" data-idel="${ix}">🗑</button>
+        <div class="e-ing" data-irow="${ix}" style="margin:0">
+          <div class="r1">
+            <input class="n" data-i="${ix}" data-k="qty" type="number" step="any" inputmode="decimal" value="${esc(i.qty)}" placeholder="#">
+            <span class="hint">${t("max")}</span>
+            <input class="n" data-i="${ix}" data-k="qtyMax" type="number" step="any" inputmode="decimal" value="${esc(i.qtyMax)}" placeholder="—" style="width:64px">
+            <select data-i="${ix}" data-k="unit" aria-label="${t("units")}">${unitOpts(i.unit)}</select>
+            <button class="mainpick ${r.mainId===i.id?"on":""}" data-main="${ix}">★ ${t("main")}</button>
+            <button class="toggle ${i.scale===false?"off":""}" data-scale="${ix}">${i.scale===false?"🔒 "+t("noScale"):"⚖️ "+t("scales")}</button>
+          </div>
+          <input class="inp nm" data-i="${ix}" data-k="name" value="${v(i.name)}" placeholder="${esc(i.name[other]||t("ingName"))}">
+          <div class="hint" style="font-size:11px">{${esc(i.id)}}</div>
+        </div></div>`).join("")}
+      <button class="btn sec" id="addIng">${t("addIng")}</button>
+
+      <div class="sec-title">⚡ ${t("presets")}</div>
+      ${r.presets.map((p,ix)=>`
+        <div class="row-wrap" style="margin:8px 0;border-radius:14px"><button class="row-del" data-pdel="${ix}">🗑</button>
+        <div class="e-ing" data-prow="${ix}" style="margin:0"><div class="r1">
+          <input class="inp" style="flex:1 1 160px" data-p="${ix}" data-k="label" value="${v(p.label)}" placeholder="${esc(p.label[other]||t("presetLabel"))}">
+          <input class="n" data-p="${ix}" data-k="value" type="number" step="any" inputmode="decimal" value="${esc(p.value)}" placeholder="${t("presetVal")}" style="width:110px">
+          <span class="hint">${esc(unitLabel(r.ingredients.find(i=>i.id===r.mainId)?.unit||"",2))}</span>
+        </div></div></div>`).join("")}
+      <button class="btn sec" id="addPreset">${t("addPreset")}</button>
+
+      <div class="sec-title">👩‍🍳 ${t("steps")}</div>
+      ${r.steps.map((s,ix)=>`
+        <div class="row-wrap" style="margin:8px 0;border-radius:14px"><button class="row-del" data-sdel="${ix}">🗑</button>
+        <div class="e-ing" data-srow="${ix}" style="margin:0">
+          <div class="r1"><div class="step-n">${ix+1}</div>
+            <input class="inp" style="flex:1" data-s="${ix}" data-k="title" value="${v(s.title)}" placeholder="${esc(s.title[other]||t("stepTitle"))}"></div>
+          <textarea class="inp nm" data-s="${ix}" data-k="text" placeholder="${esc(s.text[other]||t("stepText"))}">${v(s.text)}</textarea>
+          <div class="hint">${t("insertAmt")}</div>
+          <div class="tok-bar">${r.ingredients.filter(i=>i.qty!=="" ).map(i=>`<button data-tok="${esc(i.id)}" data-tstep="${ix}">${esc(i.name[el]||i.name[other]||i.id)}</button>`).join("")}</div>
+          <div class="r1" style="margin-top:8px"><span class="hint">⏱ ${t("timerMin")}</span>
+            <input class="n" data-s="${ix}" data-k="timer" type="number" inputmode="numeric" value="${esc(s.timer)}" placeholder="—"></div>
+        </div></div>`).join("")}
+      <p class="hint">${t("tokHint")}</p>
+      <button class="btn sec" id="addStep">${t("addStep")}</button>
+
+      <div class="sec-title">📝 ${t("notes")}</div>
+      <textarea class="inp" data-f="notes" style="min-height:120px" placeholder="${esc(r.notes[other]||"")}">${v(r.notes)}</textarea>
+
+      ${!E.isNew?`<div style="margin-top:30px;text-align:center"><button class="btn red" id="eDel">🗑 ${t("deleteRecipe")}</button></div>`:""}
+    </div></div>
+  </div>`;
+  const $=s=>layer.querySelector(s), $$=s=>layer.querySelectorAll(s);
+  // field bindings (write into model live; nothing lost on close)
+  $$("[data-f]").forEach(inp=>inp.addEventListener("input",()=>{
+    const k=inp.dataset.f;
+    if(k==="link") r.link=inp.value.trim();
+    else if(k==="tags"){ const parts=inp.value.split(",").map(s=>s.trim()).filter(Boolean); r.tags=parts.map((p,ix)=>({...(r.tags[ix]||{es:"",en:""}),[el]:p})); }
+    else r[k][el]=inp.value;
+  }));
+  $$("[data-i]").forEach(inp=>inp.addEventListener(inp.tagName==="SELECT"?"change":"input",()=>{
+    const i=r.ingredients[+inp.dataset.i], k=inp.dataset.k;
+    if(k==="name") i.name[el]=inp.value; else if(k==="unit") i.unit=inp.value; else i[k]=inp.value===""?"":+inp.value;
+  }));
+  $$("[data-p]").forEach(inp=>inp.addEventListener("input",()=>{ const p=r.presets[+inp.dataset.p]; if(inp.dataset.k==="label") p.label[el]=inp.value; else p.value=inp.value===""?"":+inp.value; }));
+  $$("[data-s]").forEach(inp=>inp.addEventListener("input",()=>{ const s=r.steps[+inp.dataset.s], k=inp.dataset.k; if(k==="timer") s.timer=inp.value===""?"":+inp.value; else s[k][el]=inp.value; }));
+  $$("[data-emoji]").forEach(b=>b.onclick=()=>{ r.emoji=b.dataset.emoji; keepScroll(renderEditor); });
+  $$("[data-main]").forEach(b=>b.onclick=()=>{ r.mainId=r.ingredients[+b.dataset.main].id; keepScroll(renderEditor); });
+  $$("[data-scale]").forEach(b=>b.onclick=()=>{ const i=r.ingredients[+b.dataset.scale]; i.scale=i.scale===false; keepScroll(renderEditor); });
+  $$("[data-elang]").forEach(b=>b.onclick=()=>{ E.lang=b.dataset.elang; keepScroll(renderEditor); });
+  $$("[data-tok]").forEach(b=>b.onclick=()=>{
+    const ix=+b.dataset.tstep, ta=layer.querySelector(`textarea[data-s="${ix}"]`);
+    const tok="{"+b.dataset.tok+"}", s=ta.selectionStart??ta.value.length, e2=ta.selectionEnd??s;
+    ta.value=ta.value.slice(0,s)+tok+ta.value.slice(e2); r.steps[ix].text[el]=ta.value; ta.focus(); try{ta.setSelectionRange(s+tok.length,s+tok.length)}catch(_){}
+  });
+  $("#addIng").onclick=()=>{ r.ingredients.push({id:"i"+uid().slice(0,5),qty:"",qtyMax:"",unit:"",name:{es:"",en:""},scale:true}); keepScroll(renderEditor); };
+  $("#addStep").onclick=()=>{ r.steps.push({title:{es:"",en:""},text:{es:"",en:""},timer:""}); keepScroll(renderEditor); };
+  $("#addPreset").onclick=()=>{ r.presets.push({label:{es:"",en:""},value:""}); keepScroll(renderEditor); };
+  const rowDel=(arr,ix)=>confirmBox(t("delRowQ"),`<span class="hint">${t("delMsg")}</span>`,t("del"),()=>{ arr.splice(ix,1); if(arr===r.ingredients && !arr.find(i=>i.id===r.mainId)) r.mainId=arr[0]?.id||""; keepScroll(renderEditor); },()=>keepScroll(renderEditor));
+  $$("[data-irow]").forEach(row=>swipeable(row,()=>rowDel(r.ingredients,+row.dataset.irow)));
+  $$("[data-srow]").forEach(row=>swipeable(row,()=>rowDel(r.steps,+row.dataset.srow)));
+  $$("[data-prow]").forEach(row=>swipeable(row,()=>rowDel(r.presets,+row.dataset.prow)));
+  $$("[data-idel]").forEach(b=>b.onclick=()=>rowDel(r.ingredients,+b.dataset.idel));
+  $$("[data-sdel]").forEach(b=>b.onclick=()=>rowDel(r.steps,+b.dataset.sdel));
+  $$("[data-pdel]").forEach(b=>b.onclick=()=>rowDel(r.presets,+b.dataset.pdel));
+  $("#eClose").onclick=closeEditor; $("#eDone").onclick=closeEditor;
+  const td=$("#eTrans"); if(td) td.onclick=translateEditor;
+  const dd=$("#eDel"); if(dd) dd.onclick=()=>confirmBox(t("delQ"),`<b>${esc(L(r.title))}</b><br><span class="hint">${t("delMsg")}</span>`,t("del"),async()=>{ const id=r.id; S.editor=null; layer.innerHTML=""; await deleteRecipe(id); go(null); });
+  bindLang(layer);
+}
+function keepScroll(fn){ const b=layer.querySelector(".sheet-body"); const y=b?b.scrollTop:0; fn(); const b2=layer.querySelector(".sheet-body"); if(b2) b2.scrollTop=y; }
+function isEmpty(r){ return !r.title.es && !r.title.en && !r.link && !r.ingredients.some(i=>i.name.es||i.name.en) && !r.steps.some(s=>s.text.es||s.text.en) && !r.notes.es && !r.notes.en; }
+async function closeEditor(){
+  const E=S.editor; if(!E) return; const r=E.r;
+  S.editor=null; layer.innerHTML="";
+  if(E.isNew && isEmpty(r)) return;
+  // clean
+  r.ingredients=r.ingredients.filter(i=>i.name.es||i.name.en||i.qty!=="");
+  r.steps=r.steps.filter(s=>s.title.es||s.title.en||s.text.es||s.text.en);
+  r.presets=r.presets.filter(p=>p.value!=="");
+  r.tags=r.tags.filter(x=>x.es||x.en);
+  if(!r.title.es && !r.title.en) r.title[S.lang]=t("untitled");
+  if(!r.id){ let base=slugify(r.title.es||r.title.en), id=base, n=2; while(S.recipes.some(x=>x.id===id)) id=base+"-"+(n++); r.id=id; }
+  const ok=await saveRecipe(r);
+  if(ok){ toast("✓ "+t("saved")); if(S.view!==r.id) go(r.id); else render(); }
+  else { S.editor={r,lang:E.lang,isNew:E.isNew,busy:false}; renderEditor(); }
+}
+
+/* ================= Claude helpers ================= */
+const SCHEMA_DOC = `Recipe JSON shape:
+{"title":{"es":"","en":""},"emoji":"one food emoji","link":"url or empty","tags":[{"es":"","en":""}],"servings":{"es":"","en":""},
+"mainId":"id of the main ingredient (the one a cook would measure to scale the recipe, usually the largest/defining one)",
+"ingredients":[{"id":"i1","qty":number or null,"qtyMax":number or null (for ranges like 4-5),"unit":one of ${JSON.stringify(Object.keys(UNITS))} ("" for plain counts like 3 onions),"name":{"es":"","en":""},"scale":true}],
+"steps":[{"title":{"es":"","en":""},"text":{"es":"","en":""},"timer":minutes number or null}],
+"presets":[{"label":{"es":"","en":""},"value":number in the main ingredient's unit}],
+"notes":{"es":"","en":""}}
+Rules: In step text, wherever an amount of an ingredient is mentioned, replace the number+unit with the token {ingredientId} (e.g. "Agrega {i2} de agua" / "Add {i2} of water") so it rescales. Use "to taste" items with qty null. Keep the cook's wording and tips; fix spelling. Use metric/units as given; do not convert. Timer only when the step has a clear cooking/waiting time. Return ONLY the JSON.`;
+async function translateEditor(){
+  const E=S.editor; if(!E||!S.sample) return; E.busy=true; keepScroll(renderEditor);
+  try{
+    const res = await S.sample.json(`You fill in missing translations in a bilingual (Mexican Spanish "es" / English "en") recipe. For every {"es","en"} pair where one side is empty or clearly untranslated, write a natural translation from the other side. Keep {iX} tokens exactly. Do not change filled sides, numbers, ids, units, link or structure. Return the full recipe JSON only.\n\n${JSON.stringify(E.r)}`, {modelTier:"quick"});
+    if(res && typeof res==="object" && S.editor===E){
+      const keepId=E.r.id; E.r=normalize({...E.r,...res,id:keepId,ingredients:mergeIds(E.r.ingredients,res.ingredients)}); toast("✓ "+t("translated"));
+    }
+  }catch(e){ toast(t("aiFail")); }
+  if(S.editor===E){ E.busy=false; keepScroll(renderEditor); }
+}
+function mergeIds(orig, got){ if(!Array.isArray(got)||got.length!==orig.length) return orig; return got.map((g,ix)=>({...orig[ix],name:{es:g.name?.es||orig[ix].name.es,en:g.name?.en||orig[ix].name.en}})); }
+
+function openPaste(){
+  const st={text:"",link:"",busy:false};
+  const draw=()=>{
+    layer.innerHTML=`
+    <div class="sheet">
+      <div class="sheet-top"><div><button class="icon-btn" id="pClose">✕</button></div>
+        ${S.sample?`<button class="btn done-btn" id="pOrg" ${st.busy?"disabled":""}>${st.busy?`<span class="spin"></span> ${t("organizing")}`:"✨ "+t("organize")}</button>`:`<button class="btn green done-btn" id="pRaw">✓ ${t("saveRaw")}</button>`}
+        <div class="t">${t("pasteTitle")}</div></div>
+      <div class="sheet-body"><div class="in">
+        <p>${t("pasteHelp")}</p>
+        <label class="f">🔗 ${t("link")}</label>
+        <input class="inp" id="pLink" inputmode="url" placeholder="https://www.instagram.com/reel/…" value="${esc(st.link)}">
+        <label class="f">${t("pasteText")}</label>
+        <textarea class="inp" id="pText" style="min-height:280px">${esc(st.text)}</textarea>
+        ${S.sample?`<div style="margin-top:14px;text-align:center"><button class="btn ghost" id="pRaw">${t("saveRaw")}</button></div>`:""}
+      </div></div></div>`;
+    const pl=layer.querySelector("#pLink"), pt=layer.querySelector("#pText");
+    pl.oninput=()=>st.link=pl.value.trim(); pt.oninput=()=>st.text=pt.value;
+    layer.querySelector("#pClose").onclick=()=>{ // close keeps work: save raw if something typed
+      if(st.text.trim()||st.link) saveRaw(); else layer.innerHTML=""; };
+    layer.querySelector("#pRaw").onclick=saveRaw;
+    const po=layer.querySelector("#pOrg"); if(po) po.onclick=organize;
+  };
+  const saveRaw=()=>{
+    const first=(st.text.trim().split("\n")[0]||"").slice(0,60);
+    const r=blankRecipe(); r.title[S.lang]=first||t("untitled"); r.link=st.link; r.notes[S.lang]=st.text; r.ingredients=[]; r.steps=[];
+    layer.innerHTML=""; openEditor(r,true);
+  };
+  const organize=async()=>{
+    if(!st.text.trim() && !st.link) return;
+    st.busy=true; draw();
+    try{
+      const res=await S.sample.json(`Turn this pasted recipe (it may be an Instagram/TikTok caption with emojis and hashtags) into structured bilingual JSON with both Mexican Spanish ("es") and English ("en") filled in for every text field. Put hashtags-derived categories as 1-3 short tags. If the source link is given, set "link" to it. If there are quantities for a main ingredient that come in packages (e.g. a bag), add helpful presets.\n\n${SCHEMA_DOC}\n\nSource link: ${st.link||"(none)"}\n\nPasted text:\n"""${st.text}"""`, {modelTier:"default"});
+      if(!res || typeof res!=="object") throw 0;
+      if(st.link && !res.link) res.link=st.link;
+      delete res.id; layer.innerHTML=""; openEditor(res,true);
+    }catch(e){ st.busy=false; draw(); toast(t("aiFail")); }
+  };
+  draw();
+}
+
+/* ================= start ================= */
+async function startPublic(){
+  S.canEdit=false; S.roleKnown=true;
+  const m=location.hash.match(/^#d=(.+)$/);
+  if(m){ try{ const r=normalize(await decodeRecipe(m[1])); r.id="shared"; S.recipes=[r]; S.view="shared"; }catch(e){ S.view="bad"; } }
+  S.mode="db"; render();
+  window.addEventListener("hashchange",()=>location.reload());
+}
+if(window.RX_PUBLIC) startPublic(); else { route(); initData(); }
+</script>
+</body>
+</html>
