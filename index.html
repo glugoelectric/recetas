@@ -142,7 +142,7 @@ const T = {
     factor:"Multiplicador",ingredients:"Ingredientes",steps:"Pasos",notes:"Notas",
     toTaste:"al gusto",start:"Iniciar",pause:"Pausa",resume:"Seguir",resetT:"Reiniciar",
     timeUp:"¡Tiempo!",stop:"Parar",step:"Paso",min:"min",
-    del:"Borrar",delQ:"¿Borrar esta receta?",delRowQ:"¿Quitar esta fila?",fullRecipe:"receta completa",tokGone:"falta ingrediente",delMsg:"Esto no se puede deshacer.",cancel:"Cancelar",
+    del:"Borrar",delQ:"¿Borrar esta receta?",delRowQ:"¿Quitar esta fila?",fullRecipe:"receta completa",tokGone:"falta ingrediente",yieldL:"Rinde",yieldBtn:"Es lo que rinde",yieldHint:"Marca «Es lo que rinde» en una fila (ej. 900 mL de salsa, 24 tortillas) para calcular por lo que sale, sin importar si cambias otros ingredientes.",delMsg:"Esto no se puede deshacer.",cancel:"Cancelar",
     done:"Listo",editing:"Editando en",title:"Nombre de la receta",link:"Enlace de video (Instagram, TikTok, YouTube…)",
     tags:"Etiquetas (separadas por coma)",emoji:"Ícono",servings:"Rinde (opcional)",
     ingName:"Ingrediente",addIng:"+ Ingrediente",addStep:"+ Paso",addPreset:"+ Porción rápida",
@@ -166,7 +166,7 @@ const T = {
     factor:"Multiplier",ingredients:"Ingredients",steps:"Steps",notes:"Notes",
     toTaste:"to taste",start:"Start",pause:"Pause",resume:"Resume",resetT:"Reset",
     timeUp:"Time's up!",stop:"Stop",step:"Step",min:"min",
-    del:"Delete",delQ:"Delete this recipe?",delRowQ:"Remove this row?",fullRecipe:"full recipe",tokGone:"missing ingredient",delMsg:"This can't be undone.",cancel:"Cancel",
+    del:"Delete",delQ:"Delete this recipe?",delRowQ:"Remove this row?",fullRecipe:"full recipe",tokGone:"missing ingredient",yieldL:"Makes",yieldBtn:"Recipe yield",yieldHint:"Mark «Recipe yield» on one row (e.g. 900 mL of salsa, 24 tortillas) to scale by how much it makes, no matter what other ingredients you change.",delMsg:"This can't be undone.",cancel:"Cancel",
     done:"Done",editing:"Editing in",title:"Recipe name",link:"Video link (Instagram, TikTok, YouTube…)",
     tags:"Tags (comma separated)",emoji:"Icon",servings:"Makes (optional)",
     ingName:"Ingredient",addIng:"+ Ingredient",addStep:"+ Step",addPreset:"+ Quick portion",
@@ -462,12 +462,13 @@ function renderRecipe(r){
   </div></div>
   <div class="wrap">
     <h2 style="font-size:28px;margin-top:16px">${esc(r.emoji||"🍲")} ${esc(L(r.title)||t("untitled"))}</h2>
+    ${ings.filter(i=>i.yield&&+i.qty>0).map(i=>`<p style="margin:6px 0 0;font-size:17px">🍽 ${t("yieldL")}: <b class="yq" data-yq="${esc(i.id)}" style="color:var(--accent-2)">${esc(fmtIng(i,f))}</b> ${esc(L(i.name))}</p>`).join("")}
     ${r.link?`<a class="card video" href="${esc(r.link)}" target="_blank" rel="noopener"><div class="play">▶</div><div style="min-width:0"><b>${t("video")}</b><span>${esc(r.link)}</span></div></a>`:""}
     ${scalable.length?`
     <div class="card scaler">
       <h3>⚖️ ${t("scale")}</h3>
       <div class="sc-row">
-        <select id="baseSel" aria-label="${t("scaleBy")}">${scalable.map(i=>`<option value="${esc(i.id)}" ${i.id===baseId?"selected":""}>${esc(L(i.name))}${i.id===mainId?" ★":""}</option>`).join("")}</select>
+        <select id="baseSel" aria-label="${t("scaleBy")}">${scalable.map(i=>`<option value="${esc(i.id)}" ${i.id===baseId?"selected":""}>${i.yield?"🍽 "+t("yieldL")+" ":""}${esc(L(i.name))}${i.id===mainId?" ★":""}</option>`).join("")}</select>
         <div class="amt"><input id="amtIn" type="number" inputmode="decimal" step="any" min="0" value="${esc(amtVal)}"><b>${esc(unitLabel(baseIng?.unit||"",2))}</b></div>
       </div>
       <div class="chips">
@@ -478,7 +479,7 @@ function renderRecipe(r){
       <div class="factor">${t("factor")}: ×${trimNum(f,3)}${r.servings?` · ${esc(L(r.servings))}`:""}</div>
     </div>`:""}
     <div class="sec-title">🧺 ${t("ingredients")}</div>
-    <div class="card">${ings.map(i=>`
+    <div class="card">${ings.filter(i=>!i.yield).map(i=>`
       <div class="ing ${c.ing[i.id]?"done":""}" data-ck="${esc(i.id)}">
         <div class="ck ${c.ing[i.id]?"on":""}">${c.ing[i.id]?"✓":""}</div>
         <div class="q ${changed&&i.scale!==false&&+i.qty>0?"changed":""}">${esc(fmtIng(i,f))}</div>
@@ -515,6 +516,7 @@ function renderRecipe(r){
 function softUpdate(r){
   const f=getFactor(r), changed=Math.abs(f-1)>1e-6;
   const ings=r.ingredients||[];
+  app.querySelectorAll("[data-yq]").forEach(el=>{ const i=ings.find(x=>x.id===el.dataset.yq); if(i) el.textContent=fmtIng(i,f); });
   app.querySelectorAll(".ing[data-ck]").forEach(el=>{ const i=ings.find(x=>x.id===el.dataset.ck); const q=el.querySelector(".q"); q.textContent=fmtIng(i,f); q.classList.toggle("changed",changed&&i.scale!==false&&+i.qty>0); });
   app.querySelectorAll(".step").forEach((el,ix)=>{ const p=el.querySelector("p"); if(p) p.innerHTML=renderStepText(L(r.steps[ix].text),r,f,r.steps[ix]); });
   app.querySelectorAll("[data-timer]").forEach(el=>{ const ix=+el.dataset.timer, s=r.steps[ix]; if(!s) return; const m=stepMinutes(r,s,f); el.dataset.min=m; if(!timers[tkey(r.id,ix)]){ const c=el.querySelector(".clock"); if(c) c.textContent=fmtClock(m*60); } });
@@ -629,7 +631,7 @@ function normalize(r){
   const b=blankRecipe(); r={...b,...JSON.parse(JSON.stringify(r||{}))};
   ["title","servings","notes"].forEach(k=>{ if(typeof r[k]==="string") r[k]={es:r[k],en:""}; r[k]=r[k]||{es:"",en:""}; });
   r.tags=(r.tags||[]).map(x=>typeof x==="string"?{es:x,en:x}:x);
-  r.ingredients=(r.ingredients||[]).map((i,ix)=>({id:i.id||"i"+(ix+1)+uid().slice(0,3),qty:i.qty??"",qtyMax:i.qtyMax??"",unit:i.unit in UNITS?i.unit:"",name:typeof i.name==="string"?{es:i.name,en:""}:(i.name||{es:"",en:""}),scale:i.scale!==false}));
+  r.ingredients=(r.ingredients||[]).map((i,ix)=>({id:i.id||"i"+(ix+1)+uid().slice(0,3),qty:i.qty??"",qtyMax:i.qtyMax??"",unit:i.unit in UNITS?i.unit:"",name:typeof i.name==="string"?{es:i.name,en:""}:(i.name||{es:"",en:""}),scale:i.scale!==false,yield:!!i.yield}));
   r.steps=(r.steps||[]).map(s=>({title:typeof s.title==="string"?{es:s.title,en:""}:(s.title||{es:"",en:""}),text:typeof s.text==="string"?{es:s.text,en:""}:(s.text||{es:"",en:""}),timer:s.timer??"",timerSmall:s.timerSmall??""}));
   r.presets=(r.presets||[]).map(p=>({label:typeof p.label==="string"?{es:p.label,en:p.label}:(p.label||{es:"",en:""}),value:p.value??""}));
   if(!r.ingredients.find(i=>i.id===r.mainId)) r.mainId=r.ingredients[0]?.id||"";
