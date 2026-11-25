@@ -435,8 +435,19 @@ function fmtMin(m){
   const H=h?`${h} ${es?(h===1?"hora":"horas"):(h===1?"hour":"hours")}`:"", M=mm?`${mm} ${es?"minutos":"minutes"}`:"";
   return [H,M].filter(Boolean).join(" ")||`0 ${es?"minutos":"minutes"}`;
 }
+function bothTemps(s){
+  const toF=c=>{const f=c*9/5+32; return c>=90?Math.round(f/5)*5:Math.round(f);};
+  const toC=f=>{const c=(f-32)*5/9; return f>=200?Math.round(c/5)*5:Math.round(c);};
+  return String(s||"").replace(/(\d+(?:[.,]\d+)?)(?:\s*(?:-|–|a|to)\s*(\d+(?:[.,]\d+)?))?\s*°\s*([CF])(?![a-zA-Z])/g,(m,a,b,u,off,str)=>{
+    const other=u==="C"?"F":"C";
+    const before=str.slice(Math.max(0,off-20),off), after=str.slice(off+m.length,off+m.length+20);
+    if(new RegExp("°\\s*"+other+"\\s*[(/]\\s*$").test(before) || new RegExp("^\\s*[(/]\\s*[\\d.,\\s\\-–a-z]*°\\s*"+other).test(after)) return m;
+    const conv=u==="C"?toF:toC, n=x=>conv(parseFloat(x.replace(",",".")));
+    return `${m} / ${b?n(a)+"–"+n(b):n(a)} °${other}`;
+  });
+}
 function renderStepText(text, r, f, s){
-  let out=esc(text||"");
+  let out=esc(bothTemps(text||""));
   out=out.replace(/\{t\}/g,()=> s&&+s.timer>0?`<span class="amt-tok">${fmtMin(stepMinutes(r,s,f))}</span>`:"");
   return out.replace(/\{([a-z][a-z0-9]*)\}/gi,(m,id)=>{
     const ing=(r.ingredients||[]).find(i=>i.id===id); if(!ing) return `<span class="amt-tok" style="background:#fee2e2;color:#b91c1c">⚠ ${t("tokGone")}</span>`;
@@ -493,7 +504,7 @@ function renderRecipe(r){
         <p>${renderStepText(L(s.text),r,f,s)}</p>
         ${+s.timer>0?(()=>{const m=stepMinutes(r,s,f);return `<div class="timer" data-timer="${ix}" data-min="${m}"><span>⏱</span><span class="clock">${fmtClock(timerLeft(r.id,ix,m))}</span>${timerBtns(r.id,ix)}${m!==+s.timer?`<span class="hint">(${t("fullRecipe")}: ${+s.timer} min)</span>`:""}</div>`})():""}
       </div>`).join("")}`:""}
-    ${L(r.notes)?`<div class="sec-title">📝 ${t("notes")}</div><div class="card notes">${esc(L(r.notes))}</div>`:""}
+    ${L(r.notes)?`<div class="sec-title">📝 ${t("notes")}</div><div class="card notes">${esc(bothTemps(L(r.notes)))}</div>`:""}
   </div>`;
   const bb=document.getElementById("backBtn"); if(bb) bb.onclick=()=>go(null);
   const sb=document.getElementById("shareBtn"); if(sb) sb.onclick=()=>shareRecipe(r);
